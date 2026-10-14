@@ -50,7 +50,9 @@ def test_btop_renders_with_deepwick(tmp_path):
     (config / "themes").mkdir(parents=True)
     shutil.copy(REPO / "deepwick.theme", config / "themes" / "deepwick.theme")
     (config / "btop.conf").write_text('color_theme = "deepwick"\ntruecolor = True\n')
-    text = capture("btop", {"XDG_CONFIG_HOME": str(tmp_path / "config")}, size=(120, 40), wait_for="cpu")
+    env = {"XDG_CONFIG_HOME": str(tmp_path / "config"), "XDG_STATE_HOME": str(tmp_path / "state"), "XDG_CACHE_HOME": str(tmp_path / "cache")}
+    text = capture("btop", env, size=(120, 40), wait_for="cpu")
+    assert (tmp_path / "state" / "btop.log").exists() or not (Path.home() / ".local/state/btop.log").exists()
     styles = [s for _, s in runs(text)]
     assert any(s["bg"] == C["background"].lower() for s in styles)
     assert any(s["fg"] == C["blue"].lower() for s in styles)
